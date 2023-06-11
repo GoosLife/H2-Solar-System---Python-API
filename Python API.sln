@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Python API", "Python API\Python API.pyproj", "{E6B7A8E1-0996-4BE2-B703-E9CC1DA80DAD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6B7A8E1-0996-4BE2-B703-E9CC1DA80DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6B7A8E1-0996-4BE2-B703-E9CC1DA80DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0EAF211-5757-454F-AD1D-0B1B56D50B37}
+	EndGlobalSection
+EndGlobal
