@@ -2,7 +2,7 @@ import configparser
 from  collections import namedtuple
 
 config = configparser.ConfigParser()
-config.read("test_config.ini")
+config.read("config.ini")
 
 DBConfig = namedtuple('DBConfig', ['DB_USER', 'DB_PASS', 'DB_SERV', 'DB_NAME']);
 
