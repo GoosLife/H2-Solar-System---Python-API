@@ -35,3 +35,29 @@ def get_hologram():
     except Exception as e:
         db.session.rollback()
         return "Failed to create hologram: " + str(e)
+
+@app.route('/planets/<int:planet_id>')
+def get_planet(planet_id):
+    queriedPlanet = planet.Planet.query.get_or_404(planet_id);
+    return str(queriedPlanet)
+
+@app.route('/hologram/<int:current_planet_id>')
+def set_hologram_planet(current_planet_id):
+    new_hologram = hologram.Hologram(current_planet_id, 1) # TODO: Generate unique machine ID
+    
+    try:
+        db.session.add(new_hologram)
+        db.session.commit()
+        return 'Hologram created successfully: ' + str(new_hologram)
+    except Exception as e:
+        db.session.rollback()
+        
+        try:
+            db.session.execute(db.insert(hologram.Hologram),
+                               [{
+                                   "PlanetID":new_hologram.planetId,
+                                   "MachineID":new_hologram.machineId
+                                   }])
+            return 'Hologram created successfully: ' + str(new_hologram)
+        except Exception as e:
+            return "Failed to create hologram: " + str(e)
