@@ -26,6 +26,7 @@
     <Compile Include="config.py" />
     <Compile Include="database.py" />
     <Compile Include="hologram.py" />
+    <Compile Include="logger.py" />
     <Compile Include="models.py" />
     <Compile Include="planet.py" />
     <Compile Include="python_api.py" />

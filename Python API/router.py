@@ -4,6 +4,7 @@ from database import db
 from flask import jsonify, request
 from sqlalchemy import text
 from datetime import datetime
+from logger import logToConsole as log
 
 @app.route('/')
 def index():
@@ -78,7 +79,7 @@ def set_hologram_planet():
 
         except Exception as e:
             db.session.rollback()
-            print('\n\n~~~SQL ERROR~~~\n\n' + str(datetime.now()) + '\n\n' + str(e) + "\n\n~~~SQL ERROR END~~~\n\n")
+            log(str(e), 'SQL ERROR')
             return 'Failed to create or update hologram.'
     else:
         
