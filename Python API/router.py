@@ -1,6 +1,7 @@
 from application import app
 from models import planet, hologram
 from database import db
+from sqlalchemy import select
 
 from flask import jsonify
 
@@ -26,15 +27,9 @@ def get_planets():
 
 @app.route('/hologram')
 def get_hologram():
-    new_hologram = hologram.Hologram(1,1) # TODO: Generate unique machine ID
-    
-    try:
-        db.session.add(new_hologram)
-        db.session.commit()
-        return 'Hologram created successfully: ' + str(new_hologram)
-    except Exception as e:
-        db.session.rollback()
-        return "Failed to create hologram: " + str(e)
+    statement = select(hologram.Hologram.planetId).filter_by(machineId=1)
+    planetId = db.session.execute(statement)
+    return planetId
 
 @app.route('/planets/<int:planet_id>')
 def get_planet(planet_id):
