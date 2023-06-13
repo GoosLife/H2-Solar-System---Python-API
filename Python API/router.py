@@ -20,7 +20,7 @@ def get_planets():
 
     for p in planets:
         planet_dict = {
-            "id":p.id,
+            "planetId":p.planetId,
             "name":p.name,
             "description":p.description
             }
@@ -31,20 +31,28 @@ def get_planets():
 @app.route('/planets/<int:planet_id>')
 def get_planet(planet_id):
     queriedPlanet = planet.Planet.query.get_or_404(planet_id);
-    return str(queriedPlanet)
+    return jsonify(queriedPlanet)
+
+@app.route('/planets/description', methods=["POST"])
+def getPlanetDescriptionByLanguage():
+    return 0
+
 
 ## HOLOGRAM
 
-# Get
+# Get hologram ID for machine
 @app.route('/hologram/<int:machine_id>')
 def get_hologram(machine_id):
     hologram_entry = hologram.Hologram.query.filter_by(machineId=machine_id).first()
 
     if hologram_entry is not None:
         planetId = hologram_entry.planetId
-        return str(planetId)
+        response = str(planetId)
 
-    return "No hologram found for id " + machine_id
+    response = "No hologram found for id " + machine_id
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 
@@ -65,7 +73,7 @@ def set_hologram_planet():
             if existing_hologram:
                 existing_hologram.planetId = new_planet_id
                 db.session.commit()
-                return 'Hologram updated successfully: ' + str(existing_hologram)
+                response = 'Hologram updated successfully: ' + str(existing_hologram)
             
             # Insert hologram
 
@@ -73,16 +81,19 @@ def set_hologram_planet():
                 new_hologram = hologram.Hologram(planetId=new_planet_id, machineId=new_machine_id)
                 db.session.add(new_hologram)
                 db.session.commit()
-                return 'Hologram created successfully: ' + str(new_hologram)
+                response = 'Hologram created successfully: ' + str(new_hologram)
         
         # Failed to upsert hologram
 
         except Exception as e:
             db.session.rollback()
             log(str(e), 'SQL ERROR')
-            return 'Failed to create or update hologram.'
+            response = 'Failed to create or update hologram.'
     else:
         
         # Invalid request body
 
-        return 'Request body must be JSON'
+        response = 'Request body must be JSON'
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
