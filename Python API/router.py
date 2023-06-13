@@ -43,13 +43,15 @@ def getPlanetDescriptionByLanguage():
 # Get hologram ID for machine
 @app.route('/hologram/<int:machine_id>')
 def get_hologram(machine_id):
+    response = app.make_response("")
+
     hologram_entry = hologram.Hologram.query.filter_by(machineId=machine_id).first()
 
     if hologram_entry is not None:
         planetId = hologram_entry.planetId
-        response = str(planetId)
-
-    response = "No hologram found for id " + machine_id
+        response.set_data(str(planetId))
+    else:
+        response.set_data("No hologram found for id " + str(machine_id))
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
@@ -57,8 +59,10 @@ def get_hologram(machine_id):
 
 
 # Set hologram
-@app.route('/hologram', methods=['POST'])
+@app.route('/hologram', methods=['POST', 'OPTIONS'])
 def set_hologram_planet():
+    response = app.make_response("")
+
     if request.content_type == 'application/json':
         new_planet_id = request.json['planet_id']
         new_machine_id = 1  # TODO: Generate unique machine ID
@@ -73,7 +77,7 @@ def set_hologram_planet():
             if existing_hologram:
                 existing_hologram.planetId = new_planet_id
                 db.session.commit()
-                response = 'Hologram updated successfully: ' + str(existing_hologram)
+                response.set_data('Hologram updated successfully: ' + str(existing_hologram))
             
             # Insert hologram
 
@@ -81,19 +85,19 @@ def set_hologram_planet():
                 new_hologram = hologram.Hologram(planetId=new_planet_id, machineId=new_machine_id)
                 db.session.add(new_hologram)
                 db.session.commit()
-                response = 'Hologram created successfully: ' + str(new_hologram)
+                response.set_data('Hologram created successfully: ' + str(new_hologram))
         
         # Failed to upsert hologram
 
         except Exception as e:
             db.session.rollback()
             log(str(e), 'SQL ERROR')
-            response = 'Failed to create or update hologram.'
+            response.set_data('Failed to create or update hologram.')
     else:
         
         # Invalid request body
 
-        response = 'Request body must be JSON'
+        response.set_data('Request body must be JSON')
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
