@@ -6,6 +6,14 @@ from sqlalchemy import text
 from datetime import datetime
 from logger import logToConsole as log
 
+# SEND PRE-FLIGHT
+@app.before_request
+def before_request():
+    if request.method == "OPTIONS":
+            return _build_cors_preflight_response()
+
+# INDEX ENDPOINT (CAN BE USED TO TEST CONNECTIVITY)
+
 @app.route('/')
 def index():
     return "Hello, World!"
@@ -43,26 +51,18 @@ def getPlanetDescriptionByLanguage():
 # Get hologram ID for machine
 @app.route('/hologram/<int:machine_id>')
 def get_hologram(machine_id):
-    response = app.make_response("")
-
     hologram_entry = hologram.Hologram.query.filter_by(machineId=machine_id).first()
 
     if hologram_entry is not None:
         planetId = hologram_entry.planetId
-        response.set_data(str(planetId))
+        return str(planetId)
     else:
-        response.set_data("No hologram found for id " + str(machine_id))
-
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
-
+        return "No hologram found for id " + str(machine_id)
 
 
 # Set hologram
-@app.route('/hologram', methods=['POST', 'OPTIONS'])
+@app.route('/hologram', methods=['POST'])
 def set_hologram_planet():
-    response = app.make_response("")
-
     if request.content_type == 'application/json':
         new_planet_id = request.json['planet_id']
         new_machine_id = 1  # TODO: Generate unique machine ID
@@ -77,7 +77,7 @@ def set_hologram_planet():
             if existing_hologram:
                 existing_hologram.planetId = new_planet_id
                 db.session.commit()
-                response.set_data('Hologram updated successfully: ' + str(existing_hologram))
+                return 'Hologram updated successfully: ' + str(existing_hologram)
             
             # Insert hologram
 
@@ -85,19 +85,23 @@ def set_hologram_planet():
                 new_hologram = hologram.Hologram(planetId=new_planet_id, machineId=new_machine_id)
                 db.session.add(new_hologram)
                 db.session.commit()
-                response.set_data('Hologram created successfully: ' + str(new_hologram))
+                return 'Hologram created successfully: ' + str(new_hologram)
         
         # Failed to upsert hologram
 
         except Exception as e:
             db.session.rollback()
             log(str(e), 'SQL ERROR')
-            response.set_data('Failed to create or update hologram.')
+            'Failed to create or update hologram.'
     else:
         
         # Invalid request body
 
-        response.set_data('Request body must be JSON')
+        return 'Request body must be JSON'
 
-    response.headers.add('Access-Control-Allow-Origin', '*')
+def _build_cors_preflight_response():
+    response = app.make_response("")
+    response.headers.add('Access-Control-Allow-Origin', '10.108.144.0/21')
+    response.headers.add('Access-Control-Allow-Headers', '*')
+    response.headers.add('Access-Control-Allow-Methods', '*')
     return response
