@@ -2,8 +2,6 @@ from application import app
 from models import planet, hologram
 from database import db
 from flask import jsonify, request
-from sqlalchemy import text
-from datetime import datetime
 from logger import logToConsole as log
 
 # SEND PRE-FLIGHT
@@ -43,7 +41,10 @@ def get_planet(planet_id):
 
 @app.route('/planets/description', methods=["POST"])
 def getPlanetDescriptionByLanguage():
-    return 0
+    planet_id = request.json['planet_id']
+    language = request.json['language']
+    description = planet.Planet.getDescription(planet_id, language)
+    return description
 
 
 ## HOLOGRAM
@@ -70,23 +71,9 @@ def set_hologram_planet():
         # Upsert hologram
 
         try:
-            existing_hologram = hologram.Hologram.query.filter_by(machineId=new_machine_id).first()
+            hologram.Hologram.upsert(new_planet_id, new_machine_id)
+            db.session.commit()
 
-            # Update hologram
-
-            if existing_hologram:
-                existing_hologram.planetId = new_planet_id
-                db.session.commit()
-                return 'Hologram updated successfully: ' + str(existing_hologram)
-            
-            # Insert hologram
-
-            else:
-                new_hologram = hologram.Hologram(planetId=new_planet_id, machineId=new_machine_id)
-                db.session.add(new_hologram)
-                db.session.commit()
-                return 'Hologram created successfully: ' + str(new_hologram)
-        
         # Failed to upsert hologram
 
         except Exception as e:

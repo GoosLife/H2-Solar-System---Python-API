@@ -1,4 +1,6 @@
 from database import db
+from sqlalchemy.sql import func
+from logger import logToConsole as log
 
 class Planet(db.Model):
     __tablename__ = "Planets"
@@ -14,3 +16,9 @@ class Planet(db.Model):
         self.planetId = planetId
         self.name = name
         self.description = description
+
+    @classmethod
+    def getDescription(cls, planet_id, language_id):
+        result = db.session.execute(func.GetPlanetDescription(planet_id, language_id))
+        description = result.scalar()
+        return description
